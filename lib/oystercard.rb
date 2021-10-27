@@ -8,7 +8,7 @@ class Oystercard
   end
 
   def top_up(amount)
-    fail "The limit is #{CARD_LIMIT}, you can not add more money to your oystercard!" if exceeds_limit?(amount)
+    fail "The limit is #{CARD_LIMIT}, you can not add more money to your oystercard!" if @balance + amount > CARD_LIMIT
     @balance += amount 
   end
 
@@ -18,6 +18,7 @@ class Oystercard
 
   def touch_in
     @in_journey = true
+    fail "No funds available" if @balance < 1
   end
 
   def touch_out
@@ -26,11 +27,5 @@ class Oystercard
 
   def in_journey?
     @in_journey
-  end
-
-  private
-
-  def exceeds_limit?(amount)
-    @balance + amount > CARD_LIMIT
   end
 end

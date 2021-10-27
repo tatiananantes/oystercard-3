@@ -39,18 +39,25 @@ describe Oystercard do
       expect(card).not_to be_in_journey
     end
 
+    it "can't touch-in if balance is less than minimum fare" do
+      expect { card.touch_in }.to raise_error "No funds available"
+  end 
+
+
     # it "can touch in" do
     #   card.touch_in
     #   expect(card).to be_in_journey
     # end
 
     it 'starts the journey' do
+      card.top_up(10)
       expect { card.touch_in }.to change { card.in_journey? }.to true
     end  
   end
 
   describe '#touch_out' do
     it 'finishes the journey' do
+      card.top_up(10)
       card.touch_in
       expect { card.touch_out }.to change { card.in_journey? }.to false
     end
