@@ -17,8 +17,9 @@ describe Oystercard do
       end
 
       it 'throws an exception if new balance exceeds the limit' do
-        card.top_up(Oystercard::CARD_LIMIT)
-        expect { card.top_up 1 }.to raise_error "The limit is #{Oystercard::CARD_LIMIT}, you can not add more money to your oystercard!"
+        card_limit = Oystercard::CARD_LIMIT
+        card.top_up(card_limit)
+        expect { card.top_up 1 }.to raise_error "The limit is #{Oystercard::CARD_LIMIT}, you can not add more money to your Oystercard!"
       end
     end
   end
@@ -32,6 +33,7 @@ describe Oystercard do
   # end
 
   describe '#touch_in' do
+    let(:station){ double :station }
     it { is_expected.to respond_to(:touch_in) }
 
     it 'is initially not in a journey' do
@@ -39,19 +41,26 @@ describe Oystercard do
     end
 
     it "can't touch-in if balance is less than minimum fare" do
-      expect { card.touch_in }.to raise_error "No funds available"
+      expect { card.touch_in(station) }.to raise_error "No funds available"
     end 
 
     it 'starts the journey' do
       card.top_up(10)
-      expect { card.touch_in }.to change { card.in_journey? }.to true
-    end  
+      expect { card.touch_in(station) }.to change { card.in_journey? }.to true
+    end
+
+    it 'remembers entry station' do
+      card.top_up(10)
+     card.touch_in(station)
+     expect(card.entry_station).to eq station
+    end
   end
 
   describe '#touch_out' do
+    let(:station) {double :station}
     before(:each) do
       card.top_up(10)
-      card.touch_in
+      card.touch_in(:station)
     end
 
     it 'finishes the journey' do
@@ -62,5 +71,9 @@ describe Oystercard do
       expect { card.touch_out }.to change { card.balance }.by (-Oystercard::MINIMUM_FARE)
     end
 
+    it 'forgets entry_station on check out' do
+      expect {card.touch_out}.to change {:station}.to nil
+      # expect (@entry_station).to be_nil
+    end
   end
 end
