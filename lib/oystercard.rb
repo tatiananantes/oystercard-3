@@ -22,19 +22,19 @@ class Oystercard
 
   def touch_in(station)
     fail "No funds available" if @balance < @minimum_fare
-      @in_journey = true
+    # @in_journey = true
       @entry_station = station
   end
 
   def touch_out
     deduct(MINIMUM_FARE)
-    @in_journey = false
+    # @in_journey = false
     @entry_station = nil
 
   end
 
   def in_journey?
-    @in_journey
+    !!entry_station
   end
 
   private
