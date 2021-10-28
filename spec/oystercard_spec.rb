@@ -45,51 +45,51 @@ describe Oystercard do
       expect { card.touch_in(station) }.to change { card.in_journey? }.to true
     end
 
-    it 'remembers entry station' do
-      card.top_up(10)
-      card.touch_in(station)
-      expect(card.entry_station).to eq station
-    end
-    
-    it 'stores entry station' do
-      card.top_up(10)
-      card.touch_in(station)
-      expect(card.journeys).to include (:start)
+    context "already in journey" do
+      before(:each) do
+        card.top_up(10)
+        card.touch_in(station)
+      end
+
+      it 'remembers entry station' do
+        expect(card.entry_station).to eq station
+      end
     end
     
   end
 
   describe '#touch_out' do
-    let(:station) {double :station}
+    let(:entry_station) { double :station }
+    let(:exit_station) { double :station }
     
     before(:each) do
       card.top_up(10)
-      card.touch_in(:station)
+      card.touch_in(:entry_station)
     end
 
     it 'finishes the journey' do
-      expect { card.touch_out(station) }.to change { card.in_journey? }.to false
+      expect { card.touch_out(exit_station) }.to change { card.in_journey? }.to false
     end
   
     it 'deducts minimum fare' do
-      expect { card.touch_out(station) }.to change { card.balance }.by (-Oystercard::MINIMUM_FARE)
+      expect { card.touch_out(exit_station) }.to change { card.balance }.by (-Oystercard::MINIMUM_FARE)
     end
 
     it 'forgets entry_station on check out' do
-      expect { card.touch_out(station) }.to change { card.entry_station }.to nil
+      expect { card.touch_out(exit_station) }.to change { card.entry_station }.to nil
     end
   
     it 'remembers exit station' do
-      card.touch_out(station)
-      expect(card.exit_station).to eq station
+      card.touch_in(entry_station)
+      card.touch_out(exit_station)
+      expect(card.exit_station).to eq exit_station
     end
 
-    it 'stores exit station' do
-      card.touch_out(station)
-      expect(card.journeys).to include (:end)
+    it 'stores a journey' do
+      card.touch_in(entry_station)
+      card.touch_out(exit_station)
+      journey = {entry: entry_station, exit: exit_station}
+      expect(card.journeys).to include(journey)
     end
-    
-
-
   end
 end
