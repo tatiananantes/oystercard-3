@@ -8,6 +8,10 @@ describe Oystercard do
     expect(card.balance).to eq 0
   end
 
+  it 'has no journeys by default' do
+    expect(card.journeys).to be_empty 
+  end
+
   describe '#top_up' do
     context 'top up card' do
       it { is_expected.to respond_to(:top_up).with(1).argument }
@@ -23,14 +27,6 @@ describe Oystercard do
       end
     end
   end
-
-  # describe '#deduct' do
-  #   it { is_expected.to respond_to(:deduct).with(1).argument }
-
-  #   it 'will deduct the fare of 5 from the balance' do
-  #     expect { card.deduct 5 }.to change { card.balance }.by -5
-  #   end
-  # end
 
   describe '#touch_in' do
     let(:station){ double :station }
@@ -51,29 +47,49 @@ describe Oystercard do
 
     it 'remembers entry station' do
       card.top_up(10)
-     card.touch_in(station)
-     expect(card.entry_station).to eq station
+      card.touch_in(station)
+      expect(card.entry_station).to eq station
     end
+    
+    it 'stores entry station' do
+      card.top_up(10)
+      card.touch_in(station)
+      expect(card.journeys).to include (:start)
+    end
+    
   end
 
   describe '#touch_out' do
     let(:station) {double :station}
+    
     before(:each) do
       card.top_up(10)
       card.touch_in(:station)
     end
 
     it 'finishes the journey' do
-      expect { card.touch_out }.to change { card.in_journey? }.to false
+      expect { card.touch_out(station) }.to change { card.in_journey? }.to false
     end
   
     it 'deducts minimum fare' do
-      expect { card.touch_out }.to change { card.balance }.by (-Oystercard::MINIMUM_FARE)
+      expect { card.touch_out(station) }.to change { card.balance }.by (-Oystercard::MINIMUM_FARE)
     end
 
     it 'forgets entry_station on check out' do
-      expect { card.touch_out }.to change { card.entry_station }.to nil
-
+      expect { card.touch_out(station) }.to change { card.entry_station }.to nil
     end
+  
+    it 'remembers exit station' do
+      card.touch_out(station)
+      expect(card.exit_station).to eq station
+    end
+
+    it 'stores exit station' do
+      card.touch_out(station)
+      expect(card.journeys).to include (:end)
+    end
+    
+
+
   end
 end
