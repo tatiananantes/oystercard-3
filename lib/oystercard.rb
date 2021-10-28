@@ -22,14 +22,8 @@ class Oystercard
 
   def touch_in(station)
     fail "No funds available" if @balance < @minimum_fare
-    p @in_journey = true
-     @entry_station = station  # if this in, we do not receive error 1 on rspec.  However, this
-    # is not showing on walkthrough code.
-    # different ways of listing station, :entry_station, etc. tried but getting
-    # 2) Oystercard#touch_out forgets entry_station on check out
-    #      Failure/Error: expect {card.touch_out}.to change {:station}.to nil
-    #        expected `:station` to have changed to nil, but did not change
-    #      # ./spec/oystercard_spec.rb:75:in `block (3 levels) in <top (required)>'
+      @in_journey = true
+      @entry_station = station
   end
 
   def touch_out
