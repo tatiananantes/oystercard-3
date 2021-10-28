@@ -72,8 +72,8 @@ describe Oystercard do
     end
 
     it 'forgets entry_station on check out' do
-      expect {card.touch_out}.to change {:station}.to nil
-      # expect (@entry_station).to be_nil
+      expect { card.touch_out }.to change { card.entry_station }.to nil
+
     end
   end
 end
