@@ -91,5 +91,9 @@ describe Oystercard do
       journey = {entry: entry_station, exit: exit_station}
       expect(card.journeys).to include(journey)
     end
+
+    pending it 'tells me what zone a station is in' do
+
+    end
   end
 end
